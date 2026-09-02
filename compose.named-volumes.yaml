@@ -1,0 +1,37 @@
+name: motrix
+
+services:
+  server:
+    image: "${MOTRIX_IMAGE:-motrixapp/motrix-server:latest}"
+    init: true
+    read_only: true
+    user: "1000:1000"
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    stop_grace_period: 2m
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,mode=1777
+    environment:
+      MOTRIX_DATA_DIR: /data
+      MOTRIX_TEMP_DIR: /data/tmp
+      MOTRIX_PLUGIN_DIR: /data/plugins
+      MOTRIX_DEFAULT_SAVE_DIR: /downloads
+      MOTRIX_ALLOWED_SAVE_DIRS: /downloads
+      MOTRIX_ARIA2_RPC_LISTEN_ALL: "${MOTRIX_ARIA2_RPC_LISTEN_ALL:-false}"
+      MOTRIX_MDXP_HOST: 0.0.0.0
+      MOTRIX_MDXP_PORT: 16801
+      MOTRIX_PUBLIC_URL: "${MOTRIX_PUBLIC_URL:-}"
+      MOTRIX_REMOTE_EXTENSION_ENABLED: "${MOTRIX_REMOTE_EXTENSION_ENABLED:-false}"
+      MOTRIX_REMOTE_EXTENSION_PUBLIC_URL: "${MOTRIX_REMOTE_EXTENSION_PUBLIC_URL:-}"
+      MOTRIX_ALLOW_INSECURE_OPERATOR_HTTP: "${MOTRIX_ALLOW_INSECURE_OPERATOR_HTTP:-false}"
+    ports:
+      - "${MOTRIX_WEB_BIND_IP:-${MOTRIX_BIND_IP:-0.0.0.0}}:${MOTRIX_HTTP_PORT:-8080}:8080"
+      - "${MOTRIX_MDXP_BIND_IP:-${MOTRIX_BIND_IP:-0.0.0.0}}:${MOTRIX_MDXP_PUBLIC_PORT:-16801}:16801"
+    volumes:
+      - motrix-data:/data
+      - motrix-downloads:/downloads
+
+volumes:
+  motrix-data:
+  motrix-downloads:

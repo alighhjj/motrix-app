@@ -1,0 +1,50 @@
+{
+  "engine": "aria2",
+  "repo": "motrixapp/aria2",
+  "tag": "v1.37.0-motrix.11",
+  "version": "1.37.0-motrix.11",
+  "assets": {
+    "darwin-arm64": {
+      "file": "aria2c-1.37.0-motrix.11-darwin-arm64.tar.gz",
+      "bin": "aria2c",
+      "archiveSha256": "cda62246b0a31d63147d4e706fae50334abf6486d4d6b9d8ba10e5a03f41d110",
+      "binarySha256": "382a2d4d98216368195db5fc7f1e3c859d7b3b46be74d4ab4bbe6e4ab02f7acd"
+    },
+    "darwin-x64": {
+      "file": "aria2c-1.37.0-motrix.11-darwin-x64.tar.gz",
+      "bin": "aria2c",
+      "archiveSha256": "bc332ba48439f103d9c067bc2183d4fd96276a1c366561e8995652a3ddf4b981",
+      "binarySha256": "a781a07ff464cd661e567f44bf8bbd9da82673fc2616cd8dcbd5410ba27d1457"
+    },
+    "win32-x64": {
+      "file": "aria2c-1.37.0-motrix.11-win32-x64.zip",
+      "bin": "aria2c.exe",
+      "archiveSha256": "218b414baf9f25ea4b619bb5d81166be4907736aabf3357cf3c1cf92bb4bcb73",
+      "binarySha256": "810f794962dc7c381e271c2c73d4682708a815fecc59716308ececca786b21db"
+    },
+    "win32-ia32": {
+      "file": "aria2c-1.37.0-motrix.11-win32-ia32.zip",
+      "bin": "aria2c.exe",
+      "archiveSha256": "38c9145577bc668e8771e01f52c72a93bd877cf7aed378a015a08e054ad62494",
+      "binarySha256": "182b0f635926b9d19833f4189d776f7a7a1a0740c43b7faa4f8b4e5679a90bfb"
+    },
+    "linux-x64": {
+      "file": "aria2c-1.37.0-motrix.11-linux-x64.tar.gz",
+      "bin": "aria2c",
+      "archiveSha256": "fdfa0f63281763b66ada47fa824835485ff3eea5ceba6c42abd4034debb63c55",
+      "binarySha256": "2e8a419decb782ff6baffbd6c4c4af007dc94fc4e13b6a1d9e89de586b42ccb5"
+    },
+    "linux-arm64": {
+      "file": "aria2c-1.37.0-motrix.11-linux-arm64.tar.gz",
+      "bin": "aria2c",
+      "archiveSha256": "1ad0f4aa9b70106910def5994d65155f5085ae990d8bab6e8775e04fd838829f",
+      "binarySha256": "6edc0174c8f94b8e005a135f1806de03bafcfb3fd07ba5320222b9c1b9b1f736"
+    },
+    "linux-arm": {
+      "file": "aria2c-1.37.0-motrix.11-linux-armv7l.tar.gz",
+      "bin": "aria2c",
+      "archiveSha256": "dbb90189eb60f49fb367651a3d3bf7ebb2600e131ed6f73da621d5af9d457dc7",
+      "binarySha256": "f68b85e6faa1aec143331f763b692bd87fa09512286fbd995f3c96904d3aa4c8"
+    }
+  }
+}
