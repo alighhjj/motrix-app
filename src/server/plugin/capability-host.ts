@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { AppCapabilityHost } from '@core/plugin/capabilities/app'
 import { CommandsCapabilityHost } from '@core/plugin/capabilities/commands'
+import { CompanionCapabilityHost } from '@core/plugin/capabilities/companion'
 import { ConfigCapabilityHost } from '@core/plugin/capabilities/config'
 import { CryptoCapabilityHost } from '@core/plugin/capabilities/crypto'
 import { FfmpegCapabilityHost } from '@core/plugin/capabilities/ffmpeg'
@@ -116,6 +117,11 @@ export async function createServerCapabilityHost(
   const ffmpegDetection = projectActiveToLegacy(ffmpegResult)
   const ffmpeg = new FfmpegCapabilityHost({ detect: ffmpegDetection })
   const http = new HttpCapabilityHost() // per-plugin jar injected by Task 19 bridge
+  const companion = new CompanionCapabilityHost({
+    pluginDirFor: (pluginId) => path.join(opts.pluginsDir, pluginId),
+    // The server shell runs as plain Node already.
+    nodeExecPath: process.execPath,
+  })
 
   return {
     // ── Plan A ──────────────────────────────────────────────────────────────
@@ -164,6 +170,7 @@ export async function createServerCapabilityHost(
     commands: commandsCap,
     notify,
     ffmpeg,
+    companion,
     secrets,
     cookieJarFor: (pluginId) => new CookieJar(opts.db, pluginId),
   }

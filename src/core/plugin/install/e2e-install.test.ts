@@ -192,6 +192,7 @@ function makeHost(calls: CascadeCalls): CapabilityHost {
     commands: null as unknown as CapabilityHost['commands'],
     notify: null as unknown as CapabilityHost['notify'],
     ffmpeg: null as unknown as CapabilityHost['ffmpeg'],
+    companion: null as unknown as CapabilityHost['companion'],
     secrets: null as unknown as CapabilityHost['secrets'],
     cookieJarFor: (pluginId: string) =>
       ({

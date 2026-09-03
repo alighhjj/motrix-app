@@ -150,6 +150,7 @@ function buildCapabilityHost(): BuiltHost {
     commands,
     notify: notify as unknown as CapabilityHost['notify'],
     ffmpeg,
+    companion: null as unknown as CapabilityHost['companion'],
     secrets: null as unknown as CapabilityHost['secrets'],
     cookieJarFor: () =>
       cookieJarStub as unknown as ReturnType<CapabilityHost['cookieJarFor']>,

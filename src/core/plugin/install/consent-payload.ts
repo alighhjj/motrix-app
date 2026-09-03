@@ -28,6 +28,7 @@ const PERMISSION_DESCRIPTIONS: Readonly<Record<string, string>> = {
   storage: 'permission.storage.description',
   notify: 'permission.notify.description',
   ffmpeg: 'permission.ffmpeg.description',
+  companion: 'permission.companion.description',
   exec: 'permission.exec.description',
 }
 

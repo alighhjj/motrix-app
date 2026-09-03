@@ -2106,6 +2106,10 @@
         "strong": "Use FFmpeg",
         "plain": "Processes audio or video."
       },
+      "companion": {
+        "strong": "Run helper processes",
+        "plain": "Starts a local helper bundled with this plugin."
+      },
       "notify": {
         "strong": "Send notifications",
         "plain": "Shows completion alerts."

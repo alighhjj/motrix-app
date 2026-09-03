@@ -2,6 +2,7 @@ import path from 'node:path'
 import { locateFfmpeg } from '@core/ffmpeg/ffmpeg-locator'
 import { AppCapabilityHost } from '@core/plugin/capabilities/app'
 import { CommandsCapabilityHost } from '@core/plugin/capabilities/commands'
+import { CompanionCapabilityHost } from '@core/plugin/capabilities/companion'
 import { ConfigCapabilityHost } from '@core/plugin/capabilities/config'
 import { CryptoCapabilityHost } from '@core/plugin/capabilities/crypto'
 import { FfmpegCapabilityHost } from '@core/plugin/capabilities/ffmpeg'
@@ -123,6 +124,13 @@ export async function createElectronCapabilityHost(
       : { available: false },
   })
   const http = new HttpCapabilityHost() // per-plugin jar injected by Task 19 bridge
+  const companion = new CompanionCapabilityHost({
+    pluginDirFor: (pluginId) => path.join(opts.pluginsDir, pluginId),
+    nodeExecPath: process.execPath,
+    // Electron's default executable is the app binary; ELECTRON_RUN_AS_NODE
+    // reroutes it to plain Node so bundled scripts run as expected.
+    baseEnv: { ELECTRON_RUN_AS_NODE: '1' },
+  })
 
   return {
     // ── Plan A ──────────────────────────────────────────────────────────────
@@ -171,6 +179,7 @@ export async function createElectronCapabilityHost(
     commands: commandsCap,
     notify,
     ffmpeg,
+    companion,
     secrets,
     cookieJarFor: (pluginId) => new CookieJar(opts.db, pluginId),
   }

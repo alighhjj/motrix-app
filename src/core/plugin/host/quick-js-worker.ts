@@ -1308,6 +1308,17 @@ function injectPluginApi(vm: QuickJSContext, init: BridgeInitMessage): void {
   vm.setProp(api, 'ffmpeg', ffmpeg)
   ffmpeg.dispose()
 
+  // ── companion ──────────────────────────────────────────────────────────
+  // Managed child process lifecycle. All three methods are effectful and
+  // round-trip through the bridge; the host owns spawn/status/termination.
+  const companion = makeEffectfulNs(vm, 'companion', [
+    'start',
+    'status',
+    'stop',
+  ])
+  vm.setProp(api, 'companion', companion)
+  companion.dispose()
+
   vm.setProp(vm.global, '__motrix_plugin_api__', api)
   pluginApiInjected = true
   api.dispose()

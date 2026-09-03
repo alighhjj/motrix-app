@@ -301,6 +301,7 @@ function buildMinimalCapabilityHost(
     commands,
     notify: notify as unknown as CapabilityHost['notify'],
     ffmpeg: fakeFfmpeg as unknown as CapabilityHost['ffmpeg'],
+    companion: null as unknown as CapabilityHost['companion'],
     secrets: null as unknown as CapabilityHost['secrets'],
     cookieJarFor: () =>
       cookieJarStub as unknown as ReturnType<CapabilityHost['cookieJarFor']>,

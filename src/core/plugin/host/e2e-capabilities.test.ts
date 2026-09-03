@@ -101,6 +101,7 @@ function buildAllcapsHost(): CapabilityHost {
     commands: null as unknown as CapabilityHost['commands'],
     notify,
     ffmpeg,
+    companion: null as unknown as CapabilityHost['companion'],
     secrets: null as unknown as CapabilityHost['secrets'],
     cookieJarFor: () =>
       null as unknown as ReturnType<CapabilityHost['cookieJarFor']>,

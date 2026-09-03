@@ -97,6 +97,10 @@ const PERMISSION_AUDIENCE: Record<
     tone: 'optional',
     toneLabelKey: 'plugins.permission.accessTone.required',
   },
+  companion: {
+    tone: 'review',
+    toneLabelKey: 'plugins.permission.accessTone.required',
+  },
   notify: {
     tone: 'off',
     toneLabelKey: 'plugins.permission.accessTone.offByDefault',

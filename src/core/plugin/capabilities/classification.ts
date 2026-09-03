@@ -36,6 +36,7 @@ const EFFECTFUL: Record<string, ReadonlyArray<string>> = {
   crypto: ['hash', 'hmac', 'randomBytes', 'aes'],
   config: ['get', 'getRaw', 'getAll', 'onChange'],
   commands: ['execute'],
+  companion: ['start', 'status', 'stop'],
   metadata: ['get', 'has', 'getAll', 'keys', 'set', 'delete'],
   app: [],
   i18n: ['t', 'on'],

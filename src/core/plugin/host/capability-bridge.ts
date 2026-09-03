@@ -69,6 +69,7 @@ const CAPABILITY_PERMISSIONS: Record<string, ReadonlyArray<string>> = {
   http: ['http'],
   notify: ['notify'],
   ffmpeg: ['ffmpeg'],
+  companion: ['companion'],
   'fs.task': ['fs.task.read', 'fs.task.write'],
   'fs.storage': ['fs.storage'],
   storage: ['storage'],
@@ -272,6 +273,15 @@ const ffmpegProbeSchema = z.object({ path: z.string() })
 const ffmpegOpIdSchema = z.tuple([z.string()])
 
 const commandsExecuteSchema = z.tuple([z.string(), z.unknown()])
+
+const companionStartSchema = z.object({
+  script: z.string(),
+  args: z.array(z.string()).max(64).optional(),
+  env: z.record(z.string(), z.string()).optional(),
+  timeoutMs: z.number().optional(),
+})
+
+const companionIdSchema = z.tuple([z.string()])
 
 // ---------------------------------------------------------------------------
 // FfmpegOpEntry — tracks a running ffmpeg operation
@@ -538,6 +548,9 @@ export class CapabilityBridge {
           break
         case 'ffmpeg':
           result = await this.dispatchFfmpeg(msg)
+          break
+        case 'companion':
+          result = await this.dispatchCompanion(msg)
           break
         default:
           return this.sendError(
@@ -1233,6 +1246,40 @@ export class CapabilityBridge {
   }
 
   // -------------------------------------------------------------------------
+  // companion — managed plugin-bundled child process
+  //
+  // start(script, args?, env?, timeoutMs?): launches the script inside the
+  //   plugin install dir using the host Node runtime; rejects if the script
+  //   escapes the sandbox, another companion is already running for this
+  //   plugin, or the process fails to spawn within the timeout.
+  // status(id) / stop(id): inspect / terminate a running companion by id.
+  // -------------------------------------------------------------------------
+
+  private async dispatchCompanion(msg: BridgeCallMessage): Promise<unknown> {
+    const companion = this.opts.capabilityHost.companion
+    switch (msg.method) {
+      case 'start': {
+        const [opts] = msg.args
+        const parsed = companionStartSchema.parse(opts)
+        return companion.start(this.opts.pluginId, parsed)
+      }
+      case 'status': {
+        const [id] = companionIdSchema.parse(msg.args)
+        return companion.status(id)
+      }
+      case 'stop': {
+        const [id] = companionIdSchema.parse(msg.args)
+        return companion.stop(id)
+      }
+      default:
+        throw new PluginCodedError(
+          'plugin.capability.unavailable',
+          `unknown companion method: ${msg.method}`
+        )
+    }
+  }
+
+  // -------------------------------------------------------------------------
   // Plan C injection points
   // -------------------------------------------------------------------------
 
@@ -1587,6 +1634,9 @@ export class CapabilityBridge {
       entry.handle.abort()
     }
     this.ffmpegOps.clear()
+    // Terminate any companion processes this plugin started.
+    // Guarded: test stubs may leave companion as null/undefined.
+    this.opts.capabilityHost.companion?.stopAllForPlugin(this.opts.pluginId)
     this.worker.postMessage({ type: 'event', event: 'shutdown' })
     await this.worker.terminate()
   }

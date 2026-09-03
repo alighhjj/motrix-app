@@ -4,6 +4,7 @@ import type { SupportedLocale } from '@shared/constants/locales'
 import type { PluginLogEntry } from '@shared/types/plugin'
 import type { ManifestLocaleDict } from '../manifest/i18n-resolve'
 import type { CommandsCapabilityHost } from './commands'
+import type { CompanionCapabilityHost } from './companion'
 import type { ConfigCapabilityHost } from './config'
 import type { CryptoCapabilityHost } from './crypto'
 import type { FfmpegCapabilityHost } from './ffmpeg'
@@ -86,6 +87,8 @@ export interface CapabilityHost {
   notify: NotifyCapabilityHost
   /** ffmpeg run + probe host (uses detected binary or unavailable). */
   ffmpeg: FfmpegCapabilityHost
+  /** Managed companion process host (runs plugin-bundled scripts). */
+  companion: CompanionCapabilityHost
   /** Secret encrypt/decrypt store (file-backed libsodium on both shells). */
   secrets: SecretStore
   /** Factory: returns a per-plugin cookie jar backed by SQLite. */

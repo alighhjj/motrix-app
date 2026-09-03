@@ -2086,6 +2086,10 @@
         "strong": "使用 FFmpeg",
         "plain": "处理音频或视频。"
       },
+      "companion": {
+        "strong": "运行辅助进程",
+        "plain": "启动随插件打包的本地辅助程序。"
+      },
       "notify": {
         "strong": "发送通知",
         "plain": "显示完成提醒。"

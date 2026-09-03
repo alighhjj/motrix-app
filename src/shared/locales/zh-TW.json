@@ -2179,6 +2179,10 @@
         "strong": "使用 FFmpeg",
         "plain": "處理音訊或影片。"
       },
+      "companion": {
+        "strong": "執行輔助處理程序",
+        "plain": "啟動此外掛程式隨附的本機輔助程式。"
+      },
       "notify": {
         "strong": "傳送通知",
         "plain": "顯示完成提醒。"
