@@ -65,7 +65,7 @@
     }
   ],
   "electronFuses": {
-    "runAsNode": false,
+    "runAsNode": true,
     "enableCookieEncryption": false,
     "enableNodeOptionsEnvironmentVariable": false,
     "enableNodeCliInspectArguments": false,
