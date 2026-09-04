@@ -267,15 +267,16 @@ function handleHookEnter(
   const metaSet = vm.newFunction('set', (keyH, valueH) => {
     const key = vm.dump(keyH) as string
     const value = valueH !== undefined ? vm.dump(valueH) : undefined
-    // Fire-and-forget; staged store accepts on host side.
-    void callHost('metadata', 'set', [key, value])
+    // Fire-and-forget; staged store accepts on host side. Swallow rejections
+    // (e.g. missing permission, quota) so a denied write never crashes the worker.
+    void callHost('metadata', 'set', [key, value]).catch(() => {})
     return vm.undefined
   })
   vm.setProp(metadataHandle, 'set', metaSet)
   metaSet.dispose()
   const metaDelete = vm.newFunction('delete', (keyH) => {
     const key = vm.dump(keyH) as string
-    void callHost('metadata', 'delete', [key])
+    void callHost('metadata', 'delete', [key]).catch(() => {})
     return vm.undefined
   })
   vm.setProp(metadataHandle, 'delete', metaDelete)
@@ -1281,9 +1282,10 @@ function injectPluginApi(vm: QuickJSContext, init: BridgeInitMessage): void {
     vm.setProp(handleObj, 'pollProgress', pollFn)
     pollFn.dispose()
 
-    // abort(): fire-and-forget
+    // abort(): fire-and-forget. Swallow rejections (e.g. missing ffmpeg
+    // permission) so a denied abort never crashes the worker.
     const abortFn = vm.newFunction('abort', () => {
-      void callHost('ffmpeg', 'op.abort', [opId])
+      void callHost('ffmpeg', 'op.abort', [opId]).catch(() => {})
       return vm.undefined
     })
     vm.setProp(handleObj, 'abort', abortFn)

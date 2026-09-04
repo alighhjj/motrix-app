@@ -145,6 +145,20 @@ describe('CapabilityBridge permission gate (spec §I30)', () => {
     expect(err.message).toMatch(/permission/i)
   })
 
+  it('denies metadata.set/metadata.delete when metadata permission is not granted', async () => {
+    made = makeBridge(new Set(['storage']))
+
+    await made.bridge.dispatchCall(makeCall('metadata', 'set'))
+    const errSet = lastError(made.posted)
+    expect(errSet.code).toBe('plugin.capability.unavailable')
+    expect(errSet.message).toMatch(/metadata\.set denied/)
+
+    await made.bridge.dispatchCall(makeCall('metadata', 'delete'))
+    const errDel = lastError(made.posted)
+    expect(errDel.code).toBe('plugin.capability.unavailable')
+    expect(errDel.message).toMatch(/metadata\.delete denied/)
+  })
+
   it('permits a capability whose permission IS in effectivePermissions', async () => {
     made = makeBridge(new Set(['storage', 'notify']))
     await made.bridge.dispatchCall(makeCall('notify', 'show'))
