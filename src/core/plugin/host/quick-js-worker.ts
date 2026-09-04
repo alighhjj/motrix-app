@@ -75,6 +75,12 @@ const registeredCommands = new Map<string, QuickJSHandle>()
 // all memory without an explicit dispose pass.
 const registeredDeactivateHandlers: QuickJSHandle[] = []
 
+// Registered lifecycle.onActivate handlers. Plan A wires these: they are
+// collected during module evaluation and fired once boot completes (after
+// `ready` is sent and `currentPhase` leaves 'activation'), so plugins can run
+// effectful setup such as auto-starting a companion bridge process.
+const registeredActivateHandlers: QuickJSHandle[] = []
+
 function send(msg: WorkerToHost): void {
   port.postMessage(msg)
 }
@@ -499,6 +505,56 @@ function handleDeactivate(): void {
   )
 }
 
+// --- runActivateHandlers ------------------------------------------------
+//
+// Fires every registered lifecycle.onActivate handler after boot. Runs them
+// sequentially, awaiting any returned Promise, mirroring handleDeactivate but
+// without a host round-trip event: activation completes inside the worker once
+// `ready` is queued. Errors are logged (fire-and-forget) and do NOT abort the
+// plugin — a throwing onActivate handler must not take down a healthy plugin.
+// `currentPhase` has already left 'activation' when this is called, so
+// effectful capability calls (e.g. companion.start) are permitted.
+
+async function runActivateHandlers(vm: QuickJSContext): Promise<void> {
+  const handlers = registeredActivateHandlers.slice()
+  registeredActivateHandlers.length = 0
+
+  for (const fnHandle of handlers) {
+    try {
+      const callResult = vm.callFunction(fnHandle, vm.undefined)
+      if (callResult.error) {
+        const err = vm.dump(callResult.error)
+        callResult.error.dispose()
+        void callHost('log', 'warn', [
+          `lifecycle.onActivate handler threw: ${String(err)}`,
+        ])
+        continue
+      }
+      const maybePromise = callResult.value
+      const resolved = vm.resolvePromise(maybePromise)
+      maybePromise.dispose()
+      vm.runtime.executePendingJobs()
+      const settled = await resolved
+      vm.runtime.executePendingJobs()
+      if (settled.error) {
+        const err = vm.dump(settled.error)
+        settled.error.dispose()
+        void callHost('log', 'warn', [
+          `lifecycle.onActivate handler rejected: ${String(err)}`,
+        ])
+        continue
+      }
+      settled.value.dispose()
+    } catch (e) {
+      void callHost('log', 'warn', [
+        `lifecycle.onActivate handler failed: ${(e as Error).message}`,
+      ])
+    } finally {
+      fnHandle.dispose()
+    }
+  }
+}
+
 // --- Boot ---------------------------------------------------------------
 
 async function boot(): Promise<void> {
@@ -539,6 +595,11 @@ async function boot(): Promise<void> {
     bundleResult.value.dispose()
     send({ type: 'ready' })
     currentPhase = 'idle'
+    // Plan A: fire registered lifecycle.onActivate handlers now that the
+    // plugin is out of the 'activation' phase. Plugins use this for effectful
+    // setup (e.g. auto-starting a companion bridge). runActivateHandlers never
+    // throws, so a faulty handler cannot boot-fail the plugin.
+    await runActivateHandlers(vm)
   } catch (e) {
     send({
       type: 'fatal',
@@ -997,9 +1058,12 @@ function injectPluginApi(vm: QuickJSContext, init: BridgeInitMessage): void {
   vm.setProp(lifecycle, 'onDeactivate', onDeactF)
   onDeactF.dispose()
 
-  const onActivateF = vm.newFunction('onActivate', (_fnH) => {
-    // Store silently; Plan B doesn't fire onActivate but the API surface
-    // must not throw so plugins can write `lifecycle.onActivate(() => {})`.
+  const onActivateF = vm.newFunction('onActivate', (fnH) => {
+    // Registration-only: store the handler locally and fire it after boot
+    // (see runActivateHandlers). Fire-and-forget like the other lifecycle
+    // registrations; returns undefined so plugins can write
+    // `lifecycle.onActivate(() => {})` without awaiting a bridge round-trip.
+    registeredActivateHandlers.push(fnH.dup())
     return vm.undefined
   })
   vm.setProp(lifecycle, 'onActivate', onActivateF)
