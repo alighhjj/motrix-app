@@ -1,0 +1,16 @@
+{
+  "manifestVersion": 1,
+  "id": "test.resolve-filename-band",
+  "name": "Resolve Filename Test",
+  "version": "1.0.0",
+  "description": "Resolves uris, filename and connections for tests",
+  "categories": ["site-resolver"],
+  "engines": { "motrix": ">=2.0.0" },
+  "main": "dist/plugin.js",
+  "permissions": ["fs.task.write"],
+  "hostPermissions": ["*://*/*"],
+  "activationEvents": ["onTaskType:http"],
+  "contributes": {
+    "hooks": { "beforeCreate": { "role": "resolve" } }
+  }
+}

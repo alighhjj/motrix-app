@@ -282,6 +282,33 @@ describe('handleCreateTask + beforeCreate hook wiring', () => {
     expect(dispatchedUris).toEqual([RESOLVED_URL])
   }, 30_000)
 
+  it('applies the chain-merged filename and connections to engine dispatch', async () => {
+    stack = await bootStack('test.resolve-filename-band')
+    const saveDir = path.join(stack.rootDir, 'save')
+    const deps = makeBaseDeps(saveDir)
+    const fullDeps: Deps = { ...deps, orchestrator: stack.orchestrator }
+
+    await handleCreateTask(
+      {
+        type: 'http',
+        uris: [SOURCE_URL],
+        saveDir,
+        headers: [],
+      },
+      fullDeps
+    )
+
+    expect(deps.addUri).toHaveBeenCalledOnce()
+    const [dispatchedUris, options] = deps.addUri.mock.calls[0]
+    expect(dispatchedUris).toEqual(['https://cdn.example.com/resolved-stream'])
+    // Before the fix, the merged filename was dropped and the task fell
+    // back to the rewritten URI's basename; connections never reached the
+    // engine either.
+    expect(options.out).toBe('Resolved Title.mp4.motrix')
+    expect(options.split).toBe('1')
+    expect(options['max-connection-per-server']).toBe('1')
+  }, 30_000)
+
   it('regression: leaves URL unchanged when orchestrator is missing from deps (pre-fix bug)', async () => {
     // This is the production state before the wiring fix: createDeps was
     // built without the orchestrator slot. handleCreateTask's hook chain

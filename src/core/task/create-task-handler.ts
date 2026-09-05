@@ -663,6 +663,25 @@ async function handleCreateTaskUnderAdmission(
       if (result.final.proxy) {
         params.proxy = result.final.proxy
       }
+      // The chain's merged filename is authoritative — same weight as a
+      // user-typed name. Assigning req.filename rebases the on-disk name
+      // onto it AND skips the rewritten-URI rebase / remote-name discovery
+      // below (both only run when no explicit name exists). Without this
+      // the merged filename would be dropped and the task would fall back
+      // to the rewritten URI's basename (e.g. a stream session id).
+      if (result.final.filename) {
+        req.filename = result.final.filename
+        await pickHttpName(result.final.filename)
+      }
+      // The chain's merged connections cap (e.g. single-connection live
+      // merge streams that cannot serve parallel ranges) must reach the
+      // engine, clamped exactly like user-supplied input.
+      if (result.final.connections !== undefined) {
+        params.connections = Math.min(
+          result.final.connections,
+          engineSettings.maxConnectionPerServer
+        )
+      }
       // Always emit chain.commit on a successful chain — a chain that
       // mutates only uris or proxy (no headers) still completes and
       // deserves an audit trail. Matches the sibling site in finalizeTask.

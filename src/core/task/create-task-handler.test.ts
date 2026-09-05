@@ -1126,7 +1126,7 @@ describe('handleCreateTask with incomplete-suffix', () => {
       {
         headers: { 'User-Agent': 'Motrix test' },
         proxy: 'http://proxy.example:8080',
-        noProxy: 'localhost',
+        noProxy: 'localhost,127.0.0.1,::1',
       }
     )
     expect(deps.pick).toHaveBeenCalledWith(
@@ -1364,7 +1364,7 @@ describe('handleCreateTask with incomplete-suffix', () => {
       'https://update.code.visualstudio.com/latest/win32-x64-user/stable',
       {
         proxy: 'http://proxy.example:8080',
-        noProxy: 'localhost',
+        noProxy: 'localhost,127.0.0.1,::1',
       }
     )
     expect(deps.pick).toHaveBeenCalledWith('/d', 'chosen.exe')
@@ -1532,7 +1532,7 @@ describe('handleCreateTask with incomplete-suffix', () => {
 
     expect(probe).toHaveBeenCalledWith('https://example.com/download.php', {
       proxy: 'http://proxy-user:proxy-pass@proxy.example:8080',
-      noProxy: 'localhost,*.internal',
+      noProxy: 'localhost,*.internal,127.0.0.1,::1',
     })
     expect(capture).not.toHaveBeenCalled()
     const payload = lastAddedTask(deps).instances[0]?.payload
@@ -1943,7 +1943,9 @@ describe('handleCreateTask plugin-hook chain (Plan C / T15)', () => {
         sourceUrl: overrides.uris?.[0] ?? 'https://a/b',
         uris: overrides.uris ?? ['https://a/b'],
         saveDir: '/d',
-        filename: 'b',
+        // Matches the real orchestrator contract: final.filename echoes the
+        // request's own filename (none here) unless a plugin patched it.
+        filename: undefined,
         connections: undefined,
         headers: overrides.headers ?? [],
         proxy: overrides.proxy,
