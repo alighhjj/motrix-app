@@ -40,11 +40,14 @@ describe('proxyApplier.apply', () => {
     )
     expect(deps.engineSupervisor.applyProxyChange).toHaveBeenCalledWith({
       allProxy: 'http://p:80',
-      noProxy: '',
+      noProxy: '127.0.0.1,localhost,::1',
     })
     expect(result).toEqual({
       downloadProxy: 'applied',
-      appliedProxy: { allProxy: 'http://p:80', noProxy: '' },
+      appliedProxy: {
+        allProxy: 'http://p:80',
+        noProxy: '127.0.0.1,localhost,::1',
+      },
     })
   })
 

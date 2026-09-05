@@ -60,7 +60,7 @@ describe('ProxyBridgeManager', () => {
       })
     ).resolves.toEqual({
       allProxy: 'http://proxy.example.com:1080',
-      noProxy: '',
+      noProxy: '127.0.0.1,localhost,::1',
     })
     expect(factory).not.toHaveBeenCalled()
   })
@@ -80,7 +80,7 @@ describe('ProxyBridgeManager', () => {
       })
     ).resolves.toEqual({
       allProxy: 'http://local-user-1:local-password-1@127.0.0.1:43123',
-      noProxy: 'localhost,127.0.0.1',
+      noProxy: 'localhost,127.0.0.1,::1',
     })
     expect(server.listen).toHaveBeenCalledOnce()
     expect(getUpstream()).toBe('socks5://a%40b:p%3As@proxy.example.com:1080')

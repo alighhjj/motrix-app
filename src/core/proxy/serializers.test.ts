@@ -24,12 +24,15 @@ describe('proxyToAria2Options', () => {
     expect(proxyToAria2Options(enabledHttp)).toBeNull()
   })
 
-  it('returns options when enabled and scope on', () => {
+  it('returns options when enabled and scope on, always bypassing loopback', () => {
     const r = proxyToAria2Options({
       ...enabledHttp,
       scopes: { download: true, updateApp: false, updateTrackers: false },
     })
-    expect(r).toEqual({ allProxy: 'http://p.example.com:8080', noProxy: '' })
+    expect(r).toEqual({
+      allProxy: 'http://p.example.com:8080',
+      noProxy: '127.0.0.1,localhost,::1',
+    })
   })
 
   it('does not pass socks5 to aria2', () => {
@@ -42,13 +45,13 @@ describe('proxyToAria2Options', () => {
     ).toBeNull()
   })
 
-  it('joins bypass with comma', () => {
+  it('joins bypass with comma, deduping loopback entries', () => {
     const r = proxyToAria2Options({
       ...enabledHttp,
       scopes: { download: true, updateApp: false, updateTrackers: false },
       bypass: ['localhost', '127.0.0.1'],
     })
-    expect(r?.noProxy).toBe('localhost,127.0.0.1')
+    expect(r?.noProxy).toBe('localhost,127.0.0.1,::1')
   })
 
   it('encodes credentials', () => {
@@ -129,7 +132,7 @@ describe('proxyToDownloadRequestOptions', () => {
       })
     ).toEqual({
       proxy: 'socks5://a%40b:p%3As@p.example.com:8080',
-      noProxy: 'localhost,127.0.0.0/8',
+      noProxy: 'localhost,127.0.0.0/8,127.0.0.1,::1',
     })
   })
 })

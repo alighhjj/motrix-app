@@ -10,6 +10,24 @@ export interface DownloadProxyRequestOptions {
   noProxy: string
 }
 
+/**
+ * Loopback targets (e.g. plugin companion bridges serving local merge
+ * streams) must never traverse the download proxy: a remote proxy cannot
+ * reach the user's own machine, and aria2 fails such tasks immediately
+ * (e.g. DL_NOT_FOUND). They are always present in the download-route
+ * no-proxy list, regardless of the user's configured bypass entries.
+ */
+const LOOPBACK_NO_PROXY = ['127.0.0.1', 'localhost', '::1']
+
+/** Joins the user bypass list for the download route, always including loopback. */
+export function joinDownloadNoProxy(bypass: string[]): string {
+  const out = [...bypass]
+  for (const host of LOOPBACK_NO_PROXY) {
+    if (!out.some((entry) => entry.toLowerCase() === host)) out.push(host)
+  }
+  return out.join(',')
+}
+
 export function proxyToAria2Options(
   p: ProxySettings
 ): Aria2ProxyOptions | null {
@@ -19,7 +37,7 @@ export function proxyToAria2Options(
   if (!p.host || p.port <= 0) return null
   return {
     allProxy: proxyToUrl(p),
-    noProxy: p.bypass.join(','),
+    noProxy: joinDownloadNoProxy(p.bypass),
   }
 }
 
@@ -54,7 +72,7 @@ export function proxyToDownloadRequestOptions(
   if (!p.host || p.port <= 0) return null
   return {
     proxy: proxyToUrl(p),
-    noProxy: p.bypass.join(','),
+    noProxy: joinDownloadNoProxy(p.bypass),
   }
 }
 

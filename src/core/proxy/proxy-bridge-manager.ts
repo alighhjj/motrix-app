@@ -4,6 +4,7 @@ import type { ProxySettings } from '@shared/types/settings'
 import { Server } from 'proxy-chain'
 import {
   type Aria2ProxyOptions,
+  joinDownloadNoProxy,
   proxyToAria2Options,
   proxyToFetchUrl,
   proxyToUrl,
@@ -82,7 +83,7 @@ export class ProxyBridgeManager implements ProxyBridgeResolver {
       const localProxyUrl = await this.resolveSocks5Locked(settings)
       return {
         allProxy: localProxyUrl,
-        noProxy: settings.bypass.join(','),
+        noProxy: joinDownloadNoProxy(settings.bypass),
       }
     })
   }
