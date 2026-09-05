@@ -164,3 +164,6 @@ graphify-out/*
 
 .agents/
 skills-lock.json
+
+# Local self-developed plugins (dev plugins, source, and built .moext artifacts)
+plugin-user/
